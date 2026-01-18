@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import quizService from '../services/quizService';
 
@@ -18,8 +17,18 @@ export const useQuiz = () => {
       const response = await quizService.getQuestions(tutorialId);
       console.log('Questions response:', response);
 
-      const questionsData = (response.data || []).slice(0, 3);
+      // ✅ Map backend response to frontend format
+      const rawQuestions = response.data || [];
+      
+      // ✅ Transform: 'assessment' field → 'question' field
+      const questionsData = rawQuestions.slice(0, 3).map(q => ({
+        ...q,
+        question: q.assessment || q.question, // Support both formats
+      }));
+      
       const assmtId = response.assessment_id || null;
+
+      console.log('Mapped questions:', questionsData);
 
       setQuestions(questionsData);
       setAssessmentId(assmtId);
@@ -55,7 +64,7 @@ export const useQuiz = () => {
     try {
       console.log('Submitting answers:', { tutorialId, assessmentId: assmtId, answers });
       const response = await quizService.submitAnswers(tutorialId, assmtId, answers);
-      console.log('ASUUUUU Submit response:', response);
+      console.log('Submit response:', response);
 
       
       return response;

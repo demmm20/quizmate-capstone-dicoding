@@ -1,4 +1,3 @@
-
 export const API_ENDPOINTS = {
   REGISTER: "/register",
   LOGIN: "/login",
@@ -12,6 +11,10 @@ export const API_ENDPOINTS = {
   TUTORIAL_DETAIL: (id) => `/tutorials/${id}`,
   ASSESSMENT: (id) => `/assessment/tutorial/${id}`,
   ASSESSMENT_BY_ID: (assessmentId) => `/assessment/${assessmentId}`,
+  
+  // ✅ NEW: Iframe/embed endpoint
+  IFRAME_TUTORIAL: (id) => `/iframe/tutorial/${id}`,
+  
   SUBMIT_ASSESSMENT: (tutorialId, assessmentId) =>
     `/submit/tutorial/${tutorialId}/assessment/${assessmentId}`,
   PROGRESS_RESET: "/progress-reset",
