@@ -14,18 +14,14 @@ const api = axios.create({
   },
 });
 
-// Request interceptor - add token to headers
-api.interceptors.request.use(
-  (config) => {
-    const token = authService.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("Added auth token to request headers", token);
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// ========== HELPER: Check if endpoint is public (no auth needed) ==========
+const isPublicEndpoint = (url) => {
+  const publicPaths = [
+    '/iframe/',
+    '/public/',
+  ];
+  return publicPaths.some(path => url.includes(path));
+};
 
 // ========== HELPER: Check if in embed mode ==========
 const isEmbedMode = () => {
@@ -45,6 +41,26 @@ const isEmbedMode = () => {
     return false;
   }
 };
+
+// Request interceptor - add token to headers
+// ✅ UPDATED: Skip auth header for public endpoints
+api.interceptors.request.use(
+  (config) => {
+    // ✅ NEW: Check if endpoint is public (e.g., /iframe/*)
+    if (isPublicEndpoint(config.url)) {
+      console.log("[API] Public endpoint detected - skipping auth header:", config.url);
+      return config;
+    }
+    
+    const token = authService.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log("[API] Added auth token to request headers");
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Response interceptor - handle 401 and logout
 // UPDATED: Skip redirect untuk embed mode

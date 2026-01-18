@@ -35,7 +35,7 @@ const generateQuestionsFromContent = async (content, tutorialId) => {
       ? plainText.substring(0, maxLength) + "..." 
       : plainText;
     
-    // Call Gemini API to generate questions
+    // ✅ UPDATED: New API key
     const GEMINI_API_KEY = "AIzaSyBMhCrRCVIJrZDv3y7Si7MZg-oZ7buXlQI";
     const GEMINI_MODEL = "gemini-pro";
     
@@ -67,6 +67,8 @@ PENTING:
 - Berikan explanation singkat untuk setiap pilihan
 - Return HANYA JSON, tanpa markdown atau text lain`;
 
+    console.log("[quizService] Calling Gemini API...");
+    
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -80,8 +82,20 @@ PENTING:
       }
     );
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("[quizService] Gemini API error:", errorData);
+      throw new Error(`Gemini API error: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
     const result = await response.json();
+    console.log("[quizService] Gemini API response:", result);
+    
     const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    
+    if (!generatedText) {
+      throw new Error("Gemini API returned empty response");
+    }
     
     // Extract JSON from response (might have markdown code blocks)
     let jsonText = generatedText.trim();
@@ -91,10 +105,15 @@ PENTING:
       jsonText = jsonText.replace(/```\n?/g, "");
     }
     
+    console.log("[quizService] Parsing JSON from Gemini response...");
     const parsed = JSON.parse(jsonText);
     const questions = parsed.questions || [];
     
-    console.log("[quizService] Generated questions:", questions);
+    if (questions.length === 0) {
+      throw new Error("No questions generated");
+    }
+    
+    console.log("[quizService] Successfully generated questions:", questions.length);
     
     return {
       data: questions,
@@ -104,7 +123,7 @@ PENTING:
     
   } catch (error) {
     console.error("[quizService] Error generating questions:", error);
-    throw new Error("Gagal generate questions dari content");
+    throw error;
   }
 };
 
@@ -129,6 +148,8 @@ export const quizService = {
         if (!tutorialContent) {
           throw new Error("Tutorial content not found");
         }
+        
+        console.log("[quizService] Tutorial content length:", tutorialContent.length);
         
         // Generate questions from content using Gemini AI
         const generatedQuestions = await generateQuestionsFromContent(tutorialContent, tutorialId);
