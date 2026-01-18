@@ -158,13 +158,24 @@ const QuizPage = () => {
   const fetchedRef = useRef(false);
   const timeUpHandledRef = useRef(null);
 
+  // ========== UPDATED: goToResults with embed params preservation ==========
   const goToResults = useCallback(
     (result) => {
-      const url = `/quiz-results-player/${tutorialId}`; 
+      // ✅ Preserve embed and user params when navigating to results
+      let url = `/quiz-results-player/${tutorialId}`;
+      
+      if (embed) {
+        const params = new URLSearchParams({ embed: "1" });
+        if (embedUserId) params.append("user", embedUserId);
+        url = `${url}?${params.toString()}`;
+        console.log("[QuizPage] Navigating to results with embed params:", url);
+      }
+      
       navigate(url, { state: { result } });
     },
-    [navigate, tutorialId]
+    [navigate, tutorialId, embed, embedUserId]
   );
+  // ========== END UPDATED goToResults ==========
 
   useEffect(() => {
     if (!storageKey) return;
