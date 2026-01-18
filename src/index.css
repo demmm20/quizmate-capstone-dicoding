@@ -1,0 +1,500 @@
+/* =========================================================
+   GOOGLE FONTS (PASTIKAN DI PALING ATAS)
+   ========================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+@import "tailwindcss";
+
+/* =========================================================
+   ROOT VARIABLES
+   ========================================================= */
+:root {
+  --color-bg-body: #f0f4ff;
+  --color-text-base: #1f2937;
+
+  --color-bottom-bar-bg: #06111c;
+  --color-bottom-bar-border: #142233;
+  --color-bottom-bar-text: #c9d1d9;
+
+  --color-scrollbar-track: #f0f3f5;
+  --color-scrollbar-thumb: #c5ced6;
+  --color-scrollbar-thumb-hover: #aab5bf;
+
+  --content-card-width: 880px;
+}
+
+/* =========================================================
+   THEME COLORS
+   ========================================================= */
+.theme-light {
+  background-color: white;
+  color: black;
+}
+
+.theme-dark {
+  background-color: #1f1e1e;
+}
+
+/* =========================================================
+   FONT SIZE ADJUSTMENT BASED ON USER PREFERENCES
+   ========================================================= */
+body {
+  font-size: 16px; /* Default to medium size */
+}
+
+body.font-size-sm {
+  font-size: 14px; /* Small font size */
+}
+
+body.font-size-lg {
+  font-size: 18px; /* Large font size */
+}
+
+/* =========================================================
+   GLOBAL BODY
+   ========================================================= */
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  font-family: "Inter", sans-serif; /* default sebelum override Poppins di wrapper */
+  background: var(--color-bg-body);
+  color: var(--color-text-base);
+  overscroll-behavior-y: none;
+}
+
+/* =========================================================
+   HIDING SCROLLBAR (Tetap bisa scroll)
+   ========================================================= */
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;
+}
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+* {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}
+.animate-slideUp {
+  animation: slideUp 0.28s ease-out;
+}
+
+/* =========================================================
+   COMPONENT HELPERS (Tailwind Layer)
+   ========================================================= */
+@layer components {
+  .bottom-bar {
+    @apply fixed bottom-0 left-0 right-0 z-40 flex items-center;
+    height: 56px;
+    background: var(--color-bottom-bar-bg);
+    border-top: 1px solid var(--color-bottom-bar-border);
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .bottom-bar-inner {
+    @apply w-full max-w-7xl mx-auto flex justify-between items-center;
+  }
+
+  .bottom-bar-btn {
+    @apply flex items-center gap-1 text-sm font-medium transition-colors;
+    color: var(--color-bottom-bar-text);
+  }
+
+  .bottom-bar-btn:hover {
+    color: #3b82f6;
+  }
+
+  .sidebar-toggle {
+    @apply w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-lg transition;
+  }
+
+  .panel {
+    @apply bg-white rounded-xl shadow;
+    animation: fadeIn 0.25s ease;
+  }
+}
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.has-bottom-bar {
+  padding-bottom: 80px;
+}
+
+/* =========================================================
+   PATTERN BACKGROUND (LayoutWrapper)
+   ========================================================= */
+.pattern-container {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  overflow: visible;
+}
+.pattern-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  pointer-events: none;
+  image-rendering: auto;
+}
+.pattern-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.78);
+  z-index: 5;
+  pointer-events: none;
+  transition: background 160ms ease;
+}
+
+/* =========================================================
+   QUIZ INTRO / HERO LAYOUT
+   ========================================================= */
+.quiz-intro-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 56px;
+  padding-bottom: 56px;
+}
+
+.quiz-hero {
+  width: 100%;
+  max-width: 980px; /* kembali ke proporsi figma, lebih kompak */
+  margin: 0 auto;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 14px 50px rgba(16, 24, 40, 0.06);
+  background: linear-gradient(180deg, #2d6df6, #2563eb);
+}
+
+.quiz-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 60px;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #2d6df6, #2563eb);
+  z-index: 6;
+}
+
+.quiz-hero .window-controls {
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+.window-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.window-dot.dot-red {
+  background: #ff5f56;
+}
+.window-dot.dot-yellow {
+  background: #ffbd2e;
+}
+.window-dot.dot-green {
+  background: #27c93f;
+}
+
+.quiz-badge {
+  margin: 10px auto 0;
+  background: #2563eb;
+  color: white;
+  padding: 10px 28px;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+  z-index: 14;
+}
+
+.quiz-hero-body {
+  background: white;
+  padding: 40px 32px;
+  text-align: center;
+  border-radius: 0 0 16px 16px;
+  color: var(--color-text-base);
+  margin-top: 36px;
+}
+
+.quiz-hero-body h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0b1220;
+}
+
+.quiz-info-card {
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 12px;
+  padding: 22px 20px;
+  margin: 18px auto 28px;
+  max-width: 820px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.04);
+}
+
+.feedback {
+  width: 100%;
+  max-width: 820px;
+  margin: 18px auto;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.04);
+}
+.feedback.correct {
+  border-left: 4px solid #16a34a;
+}
+.feedback.incorrect {
+  border-left: 4px solid #ef4444;
+}
+
+/* SMALL SCREENS */
+@media (max-width: 768px) {
+  .quiz-hero {
+    max-width: calc(100% - 32px);
+    margin: 0 16px;
+  }
+  .quiz-hero::before {
+    height: 56px;
+  }
+  .quiz-badge {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+  .quiz-hero-body {
+    padding: 28px 18px;
+    margin-top: 28px;
+  }
+  .quiz-info-card {
+    padding: 16px;
+    margin: 14px auto;
+  }
+  .quiz-hero-body h1 {
+    font-size: 1.75rem;
+  }
+}
+
+/* =========================================================
+   PRINT STYLES (HANYA CETAK AREA ANALYTICS)
+   ========================================================= */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-analytics,
+  #printable-analytics * {
+    visibility: visible;
+  }
+  #printable-analytics {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
+    padding: 0 12px;
+  }
+  .print-hide {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   EMBED MODE OPTIMIZATIONS
+   ========================================================= */
+
+/* Embed mode class untuk optimize tampilan di iframe */
+body.embed-mode {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  /* Override background untuk embed - ensure light theme */
+  background: var(--color-bg-body) !important;
+}
+
+/* Pastikan tidak ada scroll horizontal di embed */
+.embed-mode * {
+  box-sizing: border-box;
+}
+
+/* Optimasi spacing untuk embed mode */
+body.embed-mode .py-14 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+body.embed-mode .py-10 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+body.embed-mode .mt-10 {
+  margin-top: 1.5rem;
+}
+
+body.embed-mode .mt-12 {
+  margin-top: 1.5rem;
+}
+
+/* Reduce spacing in space-y utilities untuk embed */
+body.embed-mode .space-y-5 > * + * {
+  margin-top: 1rem;
+}
+
+body.embed-mode .space-y-8 > * + * {
+  margin-top: 1.5rem;
+}
+
+/* Optimasi untuk iframe dengan height terbatas */
+@media (max-height: 600px) {
+  body.embed-mode .py-14 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  body.embed-mode .py-10 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  body.embed-mode .space-y-5 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  body.embed-mode .space-y-8 > * + * {
+    margin-top: 1rem;
+  }
+  
+  /* Reduce padding di cards */
+  body.embed-mode .p-6 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .p-7 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .p-8 {
+    padding: 1.25rem;
+  }
+  
+  /* Reduce header sizes */
+  body.embed-mode h1 {
+    font-size: 1.75rem;
+  }
+  
+  body.embed-mode h2 {
+    font-size: 1.5rem;
+  }
+  
+  body.embed-mode h3 {
+    font-size: 1.25rem;
+  }
+  
+  /* Compact rounded boxes */
+  body.embed-mode .rounded-2xl {
+    border-radius: 1rem;
+  }
+}
+
+/* Optimasi untuk mobile di embed */
+@media (max-width: 640px) {
+  body.embed-mode .px-4 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  body.embed-mode .p-6 {
+    padding: 0.875rem;
+  }
+  
+  body.embed-mode .p-8 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .sm\:p-7 {
+    padding: 1rem;
+  }
+  
+  body.embed-mode .sm\:p-8 {
+    padding: 1rem;
+  }
+}
+
+/* Remove max-width constraints in embed for full width */
+body.embed-mode .max-w-4xl {
+  max-width: 100%;
+}
+
+/* Ensure smooth scrolling in embed */
+body.embed-mode {
+  scroll-behavior: smooth;
+}
+
+/* Remove unnecessary shadows in embed untuk cleaner look */
+body.embed-mode .shadow-lg {
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+/* Optimasi button spacing di embed */
+body.embed-mode .mt-6 {
+  margin-top: 1rem;
+}
+
+body.embed-mode .mt-4 {
+  margin-top: 0.75rem;
+}
