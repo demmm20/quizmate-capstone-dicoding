@@ -36,8 +36,8 @@ const generateQuestionsFromContent = async (content, tutorialId) => {
       : plainText;
     
     // Call Gemini API to generate questions
-    const GEMINI_API_KEY = "AIzaSyBvYS7tyLq0Dyq4IpPmgxDep6xfnA0ToV8";
-    const GEMINI_MODEL = "gemini-2.0-flash-001";
+    const GEMINI_API_KEY = "AIzaSyBMhCrRCVIJrZDv3y7Si7MZg-oZ7buXlQI";
+    const GEMINI_MODEL = "gemini-pro";
     
     const prompt = `Berdasarkan materi pembelajaran berikut, buatkan 3 soal pilihan ganda dalam format JSON.
 
