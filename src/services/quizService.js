@@ -1,7 +1,7 @@
 import api from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 
-// Cek mode embed dari URL/sessionStorage
+// Helper untuk cek mode embed
 const isEmbedMode = () => {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -9,7 +9,7 @@ const isEmbedMode = () => {
     if (sessionStorage.getItem("embed_mode") === "true") return true;
     if (window.location.pathname.startsWith("/embed/")) return true;
     return false;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -20,9 +20,9 @@ export const quizService = {
       const embed = isEmbedMode();
       let url;
       if (embed) {
-        url = API_ENDPOINTS.IFRAME_SOAL(tutorialId);    // PAKAI ENDPOINT /iframe/soal/:id SAAT EMBED
+        url = API_ENDPOINTS.IFRAME_SOAL(tutorialId); // GET public soal saat embed
       } else {
-        url = API_ENDPOINTS.ASSESSMENT(tutorialId);     // PROTECTED SAAT MODE NORMAL
+        url = API_ENDPOINTS.ASSESSMENT(tutorialId);
       }
       const response = await api.get(url);
       return response.data;
@@ -32,7 +32,7 @@ export const quizService = {
   },
 
   getQuestionsIframe: async function (tutorialId) {
-    // Untuk kompatibilitas dengan useQuiz, forward ke getQuestions (auto-pilih endpoint)
+    // Untuk kompatibilitas hooks yang memanggil getQuestionsIframe()
     return this.getQuestions(tutorialId);
   },
 
@@ -48,11 +48,18 @@ export const quizService = {
 
   submitAnswers: async (tutorialId, assessmentId, answers) => {
     try {
+      const embed = isEmbedMode();
       const cleanAssessmentId = assessmentId.includes(":")
         ? assessmentId.split(":")[1]
         : assessmentId;
-      const url = API_ENDPOINTS.SUBMIT_ASSESSMENT(tutorialId, cleanAssessmentId);
-      const payload = { answers };
+      let url;
+      if (embed) {
+        // Saat embed --> SUBMIT ke endpoint public!
+        url = API_ENDPOINTS.IFRAME_SUBMIT_ASSESSMENT(tutorialId, cleanAssessmentId);
+      } else {
+        url = API_ENDPOINTS.SUBMIT_ASSESSMENT(tutorialId, cleanAssessmentId);
+      }
+      const payload = { answers }; // sama dengan backend
       const response = await api.post(url, payload);
       return response.data;
     } catch (error) {

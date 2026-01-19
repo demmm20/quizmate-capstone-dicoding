@@ -12,9 +12,11 @@ export const API_ENDPOINTS = {
   ASSESSMENT: (id) => `/assessment/tutorial/${id}`,
   ASSESSMENT_BY_ID: (assessmentId) => `/assessment/${assessmentId}`,
 
-  // Iframe/embed endpoint (PUBLIC, NO AUTH)
+  // Untuk EMBED (public, tanpa auth)
   IFRAME_TUTORIAL: (id) => `/iframe/tutorial/${id}`,
   IFRAME_SOAL: (id) => `/iframe/soal/${id}`,
+  IFRAME_SUBMIT_ASSESSMENT: (tutorialId, assessmentId) =>
+    `/iframe/submit/tutorial/${tutorialId}/assessment/${assessmentId}`,
 
   SUBMIT_ASSESSMENT: (tutorialId, assessmentId) =>
     `/submit/tutorial/${tutorialId}/assessment/${assessmentId}`,
