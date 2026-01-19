@@ -71,7 +71,6 @@ const QuizIntroPage = () => {
     if (tutorialId) {
       resetQuiz();
       fetchQuestions(tutorialId);
-      // Optionally: juga bisa hapus progress localStorage kalau memang mau full fresh
       try {
         if (storageKey) localStorage.removeItem(storageKey);
       } catch (e) {}
