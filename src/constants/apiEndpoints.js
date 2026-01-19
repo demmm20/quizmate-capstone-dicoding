@@ -11,12 +11,10 @@ export const API_ENDPOINTS = {
   TUTORIAL_DETAIL: (id) => `/tutorials/${id}`,
   ASSESSMENT: (id) => `/assessment/tutorial/${id}`,
   ASSESSMENT_BY_ID: (assessmentId) => `/assessment/${assessmentId}`,
-  
-  // ✅ NEW: Iframe/embed endpoint
-  IFRAME_TUTORIAL: (id) => `/iframe/tutorial/${id}`,
 
-  // ✅ NEW: PUBLIC/EMBED QUIZ endpoint (TAMBAHKAN BARIS INI)
-  PUBLIC_ASSESSMENT: (id) => `/public/assessment/${id}`,
+  // Iframe/embed endpoint (PUBLIC, NO AUTH)
+  IFRAME_TUTORIAL: (id) => `/iframe/tutorial/${id}`,
+  IFRAME_SOAL: (id) => `/iframe/soal/${id}`,
 
   SUBMIT_ASSESSMENT: (tutorialId, assessmentId) =>
     `/submit/tutorial/${tutorialId}/assessment/${assessmentId}`,
@@ -25,3 +23,5 @@ export const API_ENDPOINTS = {
   QUESTIONS_FINAL: "/questions-final",
   SUBMIT_FINAL_ANSWERS: "/submit-answers",
 };
+
+export default API_ENDPOINTS;
