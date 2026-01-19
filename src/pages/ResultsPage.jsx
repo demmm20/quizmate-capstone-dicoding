@@ -11,8 +11,8 @@ import ResultCard from "../components/Features/Feedback/ResultCard";
 import AnswerReview from "../components/Features/Feedback/AnswerReview";
 import { getUserKey } from "../utils/storage";
 import { quizDone } from "../utils/accessControl";
-import { useQuiz } from "../hooks/useQuiz"; // ⬅️ Tambahkan
-import { useQuizProgress } from "../hooks/useQuizProgress"; // ⬅️ Tambahkan
+import { useQuiz } from "../hooks/useQuiz";
+import { useQuizProgress } from "../hooks/useQuizProgress";
 
 const toText = (val) => {
   if (!val) return "";
@@ -37,7 +37,6 @@ const ResultsPage = () => {
   const embed = searchParams.get("embed") === "1";
   const embedUserId = searchParams.get("user");
 
-  // Tambahkan hooks quiz
   const { resetProgress } = useQuiz();
   const { resetQuiz } = useQuizProgress();
 
@@ -86,15 +85,6 @@ const ResultsPage = () => {
     }
   };
 
-  const isIframe = typeof window !== "undefined" && window.self !== window.top;
-  const postNavToParent = (route) => {
-    try {
-      window.parent.postMessage({ type: "nav-parent", route }, "*");
-    } catch (e) {
-      console.warn("postMessage nav-parent failed", e);
-    }
-  };
-
   const stateResult = location.state?.result;
   const localResult = (() => {
     try {
@@ -123,8 +113,7 @@ const ResultsPage = () => {
 
   const goBackChain = () => {
     const target = `/learning/${currentId}`;
-    if (isIframe) postNavToParent(target);
-    else navigate(target);
+    navigate(target);
   };
 
   const goNextChain = () => {
@@ -135,8 +124,7 @@ const ResultsPage = () => {
     } else {
       target = hasFinalResult ? "/quiz-final-result" : "/quiz-final-intro";
     }
-    if (isIframe) postNavToParent(target);
-    else navigate(target);
+    navigate(target);
   };
 
   const isPass = total > 0 ? (correct / total) * 100 >= 60 : false;
@@ -148,29 +136,25 @@ const ResultsPage = () => {
     }, 50);
   };
 
-  // VERSI FINAL PERBAIKAN: Reset SEMUA state & storage quiz, lalu navigate ke /quiz-intro/{id}
+  // VERSI FINAL: Restart quiz dan langsung navigasi ke intro quiz submodul (PASTI redirect)
   const handleRetry = () => {
     if (isEmbedMode()) {
-      // MODE EMBED/PUBLIC: hanya reset frontend & localStorage
       resetQuiz();
       clearProgress();
     } else {
-      // MODE LOGIN/AUTH: boleh reset ke backend juga
       resetProgress();
       resetQuiz();
       clearProgress();
     }
 
-    // Build query param
+    // Selalu redirect ke quiz-intro
     let url = `/quiz-intro/${tutorialId}`;
     if (embed) {
       const params = new URLSearchParams({ embed: "1" });
       if (embedUserId) params.append("user", embedUserId);
       url += `?${params.toString()}`;
     }
-
-    if (isIframe) postNavToParent(url);
-    else navigate(url, { replace: true }); // replace agar state lama tidak tumpuk
+    navigate(url, { replace: true }); // <-- SELALU redirect ke intro quiz
   };
 
   return (
