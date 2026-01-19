@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuiz } from "../hooks/useQuiz";
+import { useQuizProgress } from "../hooks/useQuizProgress";
 import { useLearning } from "../hooks/useLearning";
 import { useProgress } from "../context/ProgressContext";
 import Button from "../components/common/Button";
@@ -19,68 +20,64 @@ const QuizIntroPage = () => {
   const [searchParams] = useSearchParams();
   const embed = searchParams.get("embed") === "1";
 
-  // ========== EMBED USER HANDLING (TAMBAHAN BARU) ==========
-  const embedUserId = searchParams.get("user"); // User ID dari Dicoding LMS
-
-  // Effect untuk handle embed user tracking
+  // ====== Embed user handling (unchanged) ======
+  const embedUserId = searchParams.get("user");
   useEffect(() => {
     if (embed && embedUserId) {
-      console.log("[QuizIntroPage] Loaded in embed mode for user:", embedUserId);
-      console.log("[QuizIntroPage] Tutorial ID:", tutorialId);
-      
-      // Store untuk analytics atau tracking (opsional)
       try {
         sessionStorage.setItem("embed_user_id", embedUserId);
         sessionStorage.setItem("embed_mode", "true");
         sessionStorage.setItem("embed_tutorial_id", tutorialId || "");
-      } catch (e) {
-        console.warn("[QuizIntroPage] Cannot access sessionStorage in embed mode:", e);
-      }
+      } catch (e) {}
     }
-    
-    // Cleanup on unmount
     return () => {
       if (embed) {
         try {
           sessionStorage.removeItem("embed_mode");
-        } catch (e) {
-          // Silent fail untuk cross-origin restrictions
-        }
+        } catch (e) {}
       }
     };
   }, [embed, embedUserId, tutorialId]);
 
-  // Apply embed mode class to body
+  // Apply embed mode class to body (unchanged)
   useEffect(() => {
-    if (embed) {
-      document.body.classList.add('embed-mode');
-      console.log("[QuizIntroPage] Embed mode activated - body class applied");
-    } else {
-      document.body.classList.remove('embed-mode');
-    }
-    
-    return () => {
-      document.body.classList.remove('embed-mode');
-    };
+    if (embed) document.body.classList.add('embed-mode');
+    else document.body.classList.remove('embed-mode');
+    return () => document.body.classList.remove('embed-mode');
   }, [embed]);
-  // ========== END EMBED USER HANDLING ==========
+  // ====== End embed user handling ======
 
-  const userKey = getUserKey();
-  const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
-
-  const { questions, loading: quizLoading } = useQuiz();
+  // HOOKS - tambahan reset/fetch
+  const { fetchQuestions, questions, loading: quizLoading, error } = useQuiz();
+  const { resetQuiz } = useQuizProgress();
   const { tutorials, currentTutorial, selectTutorial, fetchTutorials, loading: learningLoading } = useLearning();
   const { getTutorialProgress } = useProgress();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [tutorialsFetched, setTutorialsFetched] = useState(false);
   const selectedRef = useRef(null);
+  const userKey = getUserKey();
+  const storageKey = tutorialId ? `${userKey}:quiz-progress-${tutorialId}` : null;
   const loading = quizLoading || learningLoading;
-
-  const totalQuestions = questions.length || 3; 
+  const totalQuestions = questions.length || 3;
   const timePerQuestion = 30;
+  
   const sidebarItems = useMemo(() => buildSidebarItems(tutorials, getTutorialProgress), [tutorials, getTutorialProgress]);
   const chain = useMemo(() => buildChain(tutorials, currentTutorial?.id), [tutorials, currentTutorial?.id]);
+
+  // ====== INI YANG WAJIB DITAMBAH: RESET STATE & FETCH SOAL ======
+  useEffect(() => {
+    // Reset state quiz/progress dan fetch soal baru setiap kali masuk ke halaman ini/param berubah
+    if (tutorialId) {
+      resetQuiz();
+      fetchQuestions(tutorialId);
+      // Optionally: juga bisa hapus progress localStorage kalau memang mau full fresh
+      try {
+        if (storageKey) localStorage.removeItem(storageKey);
+      } catch (e) {}
+    }
+  }, [tutorialId]);
+  // ================================================================
 
   useEffect(() => {
     if (!tutorialsFetched && tutorialId) {
@@ -97,21 +94,10 @@ const QuizIntroPage = () => {
     selectTutorial(parsedId).catch((err) => console.error("Error selecting tutorial:", err));
   }, [tutorialId, tutorials.length, selectTutorial]);
 
-  const clearProgress = () => {
-    if (!storageKey) return;
-    try {
-      localStorage.removeItem(storageKey);
-    } catch (e) {
-      console.warn("Failed to clear quiz progress", e);
-    }
-  };
-
-  // UPDATED: handleStartQuiz dengan embed support
+  // Handler start quiz (unchanged)
   const handleStartQuiz = () => {
     if (!tutorialId) return;
-    clearProgress();
-    
-    // NEW: Preserve embed and user params when navigating
+    // Param embed/user harus tetap dikirim
     if (embed) {
       const params = new URLSearchParams({ embed: "1" });
       if (embedUserId) params.append("user", embedUserId);
@@ -140,6 +126,14 @@ const QuizIntroPage = () => {
     return (
       <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} fullHeight>
         <Loading fullScreen text="Mempersiapkan kuis..." />
+      </LayoutWrapper>
+    );
+  }
+
+  if (error) {
+    return (
+      <LayoutWrapper showNavbar={!embed} showFooter={false} embed={embed} fullHeight>
+        <Alert type="error" message={error} />
       </LayoutWrapper>
     );
   }
