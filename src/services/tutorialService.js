@@ -1,8 +1,6 @@
-
 import api from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import { MODULES_DATA } from "../constants/modulesData";
-
 
 const BASE_SUBMODULES = MODULES_DATA[0]?.submodules ?? [];
 
@@ -24,6 +22,59 @@ export const tutorialService = {
     try {
       const res = await api.get(API_ENDPOINTS.TUTORIAL_DETAIL(id));
 
+      const envelope = res.data?.tutorial;
+      const raw =
+        envelope?.data ??
+        res.data?.data ??
+        res.data ??
+        null;
+
+      const extracted =
+        raw?.content ??
+        raw?.material ??
+        raw?.materi ??
+        raw?.body ??
+        raw?.text ??
+        raw?.html;
+
+      const content =
+        extracted !== undefined && extracted !== null
+          ? extracted
+          : typeof raw === "string"
+          ? raw
+          : Array.isArray(raw)
+          ? JSON.stringify(raw, null, 2)
+          : null;
+
+      if (content === null) {
+        const mock = getMock(id);
+        return mock
+          ? { id, title: mock.title, data: { content: mock.content }, progress: null }
+          : null;
+      }
+
+      return {
+        id,
+        title: raw?.title || envelope?.title || tutorialService.getMockTutorialTitle(id),
+        data: { content },
+        progress: res.data?.progress || envelope?.progress || null,
+      };
+    } catch (err) {
+      if (err.response?.status === 404) {
+        const mock = getMock(id);
+        return mock
+          ? { id, title: mock.title, data: { content: mock.content }, progress: null }
+          : null;
+      }
+      throw err;
+    }
+  },
+
+  // Tambahkan fungsi ini agar mode embed bisa berjalan MULUS!
+  getTutorialDetailIframe: async (id) => {
+    try {
+      const res = await api.get(API_ENDPOINTS.IFRAME_TUTORIAL(id));
+      // Standarkan output agar sama dengan getTutorialDetail
       const envelope = res.data?.tutorial;
       const raw =
         envelope?.data ??
