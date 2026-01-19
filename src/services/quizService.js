@@ -35,7 +35,7 @@ const generateQuestionsFromContent = async (content, tutorialId) => {
       ? plainText.substring(0, maxLength) + "..." 
       : plainText;
     
-    // ✅ UPDATED: New API key and model name
+    // ✅ UPDATED: Gemini API key & model
     const GEMINI_API_KEY = "AIzaSyBMhCrRCVIJrZDv3y7Si7MZg-oZ7buXlQI";
     const GEMINI_MODEL = "gemini-3-flash-preview"; 
     
@@ -170,6 +170,12 @@ export const quizService = {
       console.error("[quizService] Error fetching questions:", error);
       throw error.response?.data || error;
     }
+  },
+
+  // Tambahkan ini supaya kompatibel ke useQuiz.js
+  getQuestionsIframe: async function(tutorialId) {
+    // Forward ke getQuestions saja (di dalam sudah otomatis cek mode embed)
+    return this.getQuestions(tutorialId);
   },
 
   getAssessmentById: async (assessmentId) => {
