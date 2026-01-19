@@ -1,14 +1,16 @@
-
 import { useState, useCallback } from 'react';
 
 export const useQuizProgress = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  // STATE answers: obj dengan index sebagai key
+  // Contoh: {0: {soal_id, correct}, 1: {soal_id, correct}, ...}
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(0);
   const [startTime, setStartTime] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
+  // RECORD/jawab soal
   const recordAnswer = useCallback((questionIndex, answer) => {
     setAnswers((prev) => ({
       ...prev,

@@ -64,10 +64,22 @@ export const useQuiz = () => {
     setError(null);
   }, []);
 
-  const submitAnswers = useCallback(async (tutorialId, assmtId, answers) => {
+  /**
+   * submitAnswers sekarang menerima 'answers' sebagai OBJECT (index=>jawaban),
+   * dan akan mengubah-nya menjadi ARRAY OF OBJECTS sesuai kebutuhan backend.
+   * answers: { 0: {soal_id: ..., correct: ... }, 1: {...}, ... }
+   */
+  const submitAnswers = useCallback(async (tutorialId, assmtId, answersObj) => {
     setSubmitLoading(true);
     setError(null);
     try {
+      // Ubah object ke array agar sesuai ekspektasi backend
+      let answers = [];
+      if (Array.isArray(answersObj)) {
+        answers = answersObj;
+      } else if (typeof answersObj === 'object') {
+        answers = Object.values(answersObj);
+      }
       const response = await quizService.submitAnswers(tutorialId, assmtId, answers);
       return response;
     } catch (err) {
