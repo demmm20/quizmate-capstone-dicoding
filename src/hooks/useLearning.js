@@ -1,7 +1,16 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import tutorialService from '../services/tutorialService';
 import { MODULES_DATA } from '../constants/modulesData';
+
+// Helper untuk cek embed mode
+function isEmbedMode() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("embed") === "1" || sessionStorage.getItem("embed_mode") === "true";
+  } catch {
+    return false;
+  }
+}
 
 const BASE_SUBMODULES = MODULES_DATA[0]?.submodules ?? [];
 
@@ -27,20 +36,23 @@ export const useLearning = () => {
     }
   }, []);
 
+  // === PERBAIKAN FUNGSI: Tutorial detail ===
   const getTutorialDetail = useCallback(async (tutorialId) => {
     try {
       setLoading(true);
       setError(null);
-
-      console.log(`📄 useLearning: Fetching content for tutorial ${tutorialId}...`);
-      const tutorial = await tutorialService.getTutorialDetail(tutorialId);
-
+      const embed = isEmbedMode();
+      let tutorial;
+      if (embed) {
+        tutorial = await tutorialService.getTutorialDetailIframe(tutorialId);
+      } else {
+        tutorial = await tutorialService.getTutorialDetail(tutorialId);
+      }
       if (!tutorial) {
         setCurrentTutorial(null);
         setError(`Materi untuk tutorial ${tutorialId} belum tersedia.`);
         return null;
       }
-
       setCurrentTutorial(tutorial);
       console.log(`✅ useLearning: Tutorial ${tutorialId} content loaded`);
       return tutorial;
@@ -58,7 +70,6 @@ export const useLearning = () => {
       console.log(`📋 useLearning: Selecting tutorial ${tutorialId}...`);
       const tutorial = await getTutorialDetail(tutorialId);
       if (!tutorial) return null;
-      console.log(`✅ useLearning: Tutorial ${tutorialId} selected`);
       setCurrentTutorial(tutorial);
       return tutorial;
     },
@@ -70,6 +81,7 @@ export const useLearning = () => {
     return tutorials;
   }, [tutorials]);
 
+  // === PERBAIKAN FUNGSI: Fetch detail tutorial ===
   const fetchTutorialDetail = useCallback(
     async (id) => {
       const tutorial = tutorials.find((t) => t.id === id);
@@ -82,8 +94,13 @@ export const useLearning = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await tutorialService.getTutorialDetail(id);
-        console.log('Tutorial detail response:', response);
+        const embed = isEmbedMode();
+        let response;
+        if (embed) {
+          response = await tutorialService.getTutorialDetailIframe(id);
+        } else {
+          response = await tutorialService.getTutorialDetail(id);
+        }
         if (!response) {
           setError(`Materi untuk tutorial ${id} belum tersedia.`);
           setCurrentTutorial(null);
@@ -119,5 +136,3 @@ export const useLearning = () => {
     getTutorialDetail,
   };
 };
-
-export default useLearning;
