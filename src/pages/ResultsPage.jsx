@@ -22,6 +22,15 @@ const toText = (val) => {
   return String(val);
 };
 
+function isEmbedMode() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("embed") === "1" || sessionStorage.getItem("embed_mode") === "true";
+  } catch {
+    return false;
+  }
+}
+
 const ResultsPage = () => {
   const { tutorialId } = useParams();
   const [searchParams] = useSearchParams();
@@ -139,11 +148,18 @@ const ResultsPage = () => {
     }, 50);
   };
 
-  // VERSI PERBAIKAN: Reset SEMUA state & storage quiz, lalu navigate ke /quiz-intro/{id}
+  // VERSI FINAL PERBAIKAN: Reset SEMUA state & storage quiz, lalu navigate ke /quiz-intro/{id}
   const handleRetry = () => {
-    resetProgress(); // reset state quiz
-    resetQuiz();     // reset state progress answers/score/time
-    clearProgress(); // reset localStorage
+    if (isEmbedMode()) {
+      // MODE EMBED/PUBLIC: hanya reset frontend & localStorage
+      resetQuiz();
+      clearProgress();
+    } else {
+      // MODE LOGIN/AUTH: boleh reset ke backend juga
+      resetProgress();
+      resetQuiz();
+      clearProgress();
+    }
 
     // Build query param
     let url = `/quiz-intro/${tutorialId}`;
@@ -254,5 +270,5 @@ const ResultsPage = () => {
     </LayoutWrapper>
   );
 };
-// Fix
+
 export default ResultsPage;
